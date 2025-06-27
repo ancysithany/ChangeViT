@@ -5,9 +5,9 @@ Paper for ***[ChangeViT: Unleashing Plain Vision Transformers for Change Detecti
 
 [[paper]](https://arxiv.org/pdf/2406.12847)
 
-##TRANSFERLEARNING
+### TRANSFERLEARNING
   
-##DATASET   
+### DATASET   
        
 - Download the [LEVIR-CD](https://chenhao.in/LEVIR/)
 
