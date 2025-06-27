@@ -31,6 +31,7 @@ Paper for ***[ChangeViT: Unleashing Plain Vision Transformers for Change Detecti
 
 ### Checkpoint
 - Download the pre-weights [ViT-T](https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth), and [ViT-S](https://dl.fbaipublicfiles.com/dinov2/dinov2_vits14/dinov2_vits14_pretrain.pth), then put them into checkpoints folder.
+- download the .pth files and add it inside checkpoints.
 
 ## Dependency
 ```
@@ -38,6 +39,7 @@ pip install -r requirements.txt
 ```
 
 ## Training
+Decrease the max steps to your training and the model type to small or tiny.
 ```
 python main.py --file_root LEVIR --max_steps 80000 --model_type small --batch_size 16 --lr 2e-4 --gpu_id 0
 ```
@@ -51,7 +53,6 @@ python eval.py --file_root LEVIR --max_steps 80000 --model_type small --batch_si
 ChangeViT is released under the [CC BY-NC-SA 4.0 license](LICENSE).
 
 
-## Acknowledgement
 This repository is built upon [DINOv2](https://github.com/facebookresearch/dinov2) and [A2Net](https://github.com/guanyuezhen/A2Net). Thanks for those well-organized codebases.
 
 
