@@ -9,7 +9,7 @@ Paper for ***[ChangeViT: Unleashing Plain Vision Transformers for Change Detecti
   
 ### DATASET   
        
-- Download the [LEVIR-CD](https://chenhao.in/LEVIR/)
+- Download the [LEVIR-CD](https://github.com/justchenhao/LEVIR)
 
 - Crop each image in the dataset into 256x256 patches.
 
