@@ -9,7 +9,6 @@ import torch.utils.checkpoint
 from torch.nn.init import trunc_normal_
 from einops import rearrange
 import timm
-
 from model.layers import Mlp, PatchEmbed, SwiGLUFFNFused, MemEffAttention, NestedTensorBlock as Block
 from model.resnet import resnet18
 
@@ -17,29 +16,42 @@ from model.resnet import resnet18
 class SwinTransformerWrapper(nn.Module):
     """Wrapper to make Swin Transformer output compatible with original encoder format"""
     
-    def __init__(self, model_name, img_size=256, pretrained=True, features_only=True):
+    def __init__(self, model_name, img_size=256, pretrained=False, features_only=True):
         super().__init__()
+
+        self.model_name = model_name
         self.swin = timm.create_model(
             model_name, 
-            pretrained=pretrained, 
+            pretrained=pretrained,  # Now set to False by default
             features_only=features_only,
             img_size=img_size,
-            out_indices=[3]  # Get the last feature map
+            out_indices=[3]
         )
+
+        # Load manual weights
+        checkpoint_path = f'checkpoints/{model_name}.pth'
+        try:
+            print(f"[INFO] Loading weights from {checkpoint_path}")
+            state_dict = torch.load(checkpoint_path, map_location='cpu')
+
+            if 'model' in state_dict:
+                state_dict = state_dict['model']
+
+            missing_keys, unexpected_keys = self.swin.load_state_dict(state_dict, strict=False)
+            print(f"[INFO] Loaded with {len(missing_keys)} missing and {len(unexpected_keys)} unexpected keys.")
+        except Exception as e:
+            print(f"[WARNING] Failed to load pretrained weights from {checkpoint_path}: {e}")
         
-        # Get the feature dimensions from the model
+        # Extract dimensions
         with torch.no_grad():
             dummy_input = torch.randn(1, 3, img_size, img_size)
             dummy_output = self.swin(dummy_input)
-            self.feature_dim = dummy_output[0].shape[1]  # Channel dimension
-            self.spatial_size = dummy_output[0].shape[2]  # Spatial dimension (H=W)
+            self.feature_dim = dummy_output[0].shape[1]
+            self.spatial_size = dummy_output[0].shape[2]
     
     def forward(self, x):
-        # Extract features from Swin Transformer
         features = self.swin(x)
-        # Return the last feature map (highest level features)
-        return features[0]  # Shape: [B, C, H, W]
-
+        return features[0]
 
 class Encoder(nn.Module):
     def __init__(self, model_type='small'):
@@ -51,7 +63,7 @@ class Encoder(nn.Module):
             self.vit = SwinTransformerWrapper(
                 model_name=self.swin_model,
                 img_size=256,
-                pretrained=True
+                pretrained=False
             )
             print('Using Swin Tiny model')
             
@@ -61,7 +73,7 @@ class Encoder(nn.Module):
             self.vit = SwinTransformerWrapper(
                 model_name=self.swin_model,
                 img_size=256,
-                pretrained=True
+                pretrained=False
             )
             print('Using Swin Small model')
             
@@ -71,7 +83,7 @@ class Encoder(nn.Module):
             self.vit = SwinTransformerWrapper(
                 model_name=self.swin_model,
                 img_size=256,
-                pretrained=True
+                pretrained=False
             )
             print('Using Swin Base model')
             
@@ -223,3 +235,4 @@ class SwinEncoder(nn.Module):
 
 # For backwards compatibility, use the main Encoder class
 # You can also use SwinEncoder if you prefer the alternative implementation
+
