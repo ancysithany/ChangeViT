@@ -27,7 +27,11 @@ class Dataset(torch.utils.data.Dataset):
         label = cv2.imread(label_name, 0)
         post_image = cv2.imread(post_image_name)
 
-        img = numpy.concatenate((pre_image, post_image), axis=2)
+        try:
+          img = numpy.concatenate((pre_image, post_image), axis=2)
+        except ValueError:
+          print("⚠️ Skipping one invalid sample due to shape mismatch")
+          return self.__getitem__((idx + 1) % len(self.pre_images)) 
 
         if self.transform:
             [img, label] = self.transform(img, label)
@@ -37,3 +41,4 @@ class Dataset(torch.utils.data.Dataset):
     def get_img_info(self, idx):
         img = cv2.imread(self.pre_images[idx])
         return {"height": img.shape[0], "width": img.shape[1]}
+
